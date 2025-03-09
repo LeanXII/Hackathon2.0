@@ -7,7 +7,7 @@ const express_1 = __importDefault(require("express"));
 const generateGraph = require('../dagre');
 const router = express_1.default.Router();
 router.get('/', (req, res) => {
-    const nodes = generateGraph("nodes");
-    res.status(200).send(nodes);
+    const edges = generateGraph("edges");
+    res.status(200).send(edges);
 });
 module.exports = router;

@@ -1,25 +1,43 @@
-import {useCallback, useState} from 'react';
-import { ReactFlow, Background, Controls, applyNodeChanges, type OnNodesChange, type Node } from "@xyflow/react";
-import '@xyflow/react/dist/style.css';
+import { ReactFlow, Background, Controls } from "@xyflow/react";
+import { useGraphStore } from "./store/Zustand";
+import "@xyflow/react/dist/style.css";
+import { useShallow } from "zustand/shallow";
+import { GraphState } from "./types/stateTypes";
 
-import { getNodes } from './utils/getNodes';
+const selector = (state: GraphState) => ({
+  nodes: state.nodes,
+  edges: state.edges,
+  onNodesChange: state.onNodesChange,
+  onEdgesChange: state.onEdgesChange,
+  onConnect: state.onConnect,
+  onReconnect: state.onReconnect,
+  onReconnectStart: state.onReconnectStart,
+  onReconnectEnd: state.onReconnectEnd
 
-const initialNodes = await getNodes();
+});
 
 const App = () => {
 
-  const [nodes, setNodes] = useState<Node[]>(initialNodes)
+  const { nodes, edges, onNodesChange, onEdgesChange, onConnect, onReconnect, onReconnectEnd, onReconnectStart} =
+    useGraphStore(useShallow(selector));
 
 
-  const onNodesChange: OnNodesChange = useCallback(
-    (changes) => setNodes((nds) => applyNodeChanges(changes, nds)),
-    [setNodes],
-  );
 
 
   return (
-    <div className = "h-screen w-screen">
-      <ReactFlow nodes={nodes} onNodesChange={onNodesChange} >
+    <div className="h-screen w-screen">
+      <ReactFlow
+        nodes={nodes}
+        edges={edges}
+        onNodesChange={onNodesChange}
+        onEdgesChange={onEdgesChange}
+        onConnect={onConnect}
+        onReconnect={onReconnect}
+        onReconnectStart={onReconnectStart}
+        onReconnectEnd={onReconnectEnd}
+
+        fitView
+      >
         <Background />
         <Controls />
       </ReactFlow>

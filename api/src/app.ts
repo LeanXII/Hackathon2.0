@@ -1,6 +1,7 @@
 const express = require('express');
 const cors = require('cors');
 const nodeRouter = require('./routes/nodes');
+const edgeRouter = require('./routes/edges');
 
 
 
@@ -11,6 +12,7 @@ app.use(cors({
 }))
 
 app.use('/nodes', nodeRouter);
+app.use('/edges', edgeRouter)
 
 
 
