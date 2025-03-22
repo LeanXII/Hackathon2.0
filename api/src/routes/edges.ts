@@ -5,7 +5,7 @@ const router = express.Router();
 
 router.get('/', (req: Request, res: Response) => {
 
-  const edges = generateGraph("edges");
+  const edges = generateGraph({outputType: "edges"});
 
   res.status(200).send(edges);
 

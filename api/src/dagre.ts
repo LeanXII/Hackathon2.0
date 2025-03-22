@@ -5,10 +5,15 @@ type EObject = {
   w: string;
 };
 
-interface Nodes {
+interface ExportNodes {
   id: string;
   position: { x: number; y: number };
   data: { label: string };
+}
+
+interface InternalNodes {
+  id: string;
+  label: string;
 }
 
 interface Edges {
@@ -17,26 +22,40 @@ interface Edges {
   target: string;
 }
 
-function generateGraph(args: string): Nodes[] | Edges[] | void {
+interface GenerateGraphArgs {
+  outputType?: string,
+  newNode?: InternalNodes
+}
+
+function generateGraph({outputType, newNode}: GenerateGraphArgs): ExportNodes[] | Edges[] | void {
   const g = new dagre.graphlib.Graph();
 
-  // Set an object for the graph label
   g.setGraph({});
 
-  // Default to assigning a new object as a label for each new edge.
   g.setDefaultEdgeLabel(function () {
     return {};
   });
 
-  // Add nodes to the graph. The first argument is the node id. The second is
-  // metadata about the node. In this case we're going to add labels to each of
-  // our nodes.
-  g.setNode("XVIII Corps", { label: "Corps", width: 140, height: 100 });
-  g.setNode("82nd ABN DIV", { label: "Div", width: 140, height: 100 });
-  g.setNode("2p", { label: "2panther", width: 140, height: 100 });
-  g.setNode("1p", { label: "1panther", width: 140, height: 100 });
-  g.setNode("1f", { label: "1fury", width: 140, height: 100 });
-  g.setNode("2f", { label: "2fury", width: 140, height: 100 });
+  const internalNodes: InternalNodes[] = [
+    { id: "XVIII Corps", label: "Corps" },
+    { id: "82nd ABN DIV", label: "Div" },
+    { id: "2p", label: "2panther" },
+    { id: "1p", label: "1panther" },
+    { id: "1f", label: "1fury" },
+    { id: "2f", label: "2fury" },
+  ];
+
+  if (newNode) internalNodes.push(newNode);
+
+  internalNodes.forEach((node) => {
+    g.setNode(node.id, { label: node.label, width: 120, height: 100 });
+  });
+  // g.setNode("XVIII Corps", { label: "Corps", width: 140, height: 100 });
+  // g.setNode("82nd ABN DIV", { label: "Div", width: 140, height: 100 });
+  // g.setNode("2p", { label: "2panther", width: 140, height: 100 });
+  // g.setNode("1p", { label: "1panther", width: 140, height: 100 });
+  // g.setNode("1f", { label: "1fury", width: 140, height: 100 });
+  // g.setNode("2f", { label: "2fury", width: 140, height: 100 });
 
   // Add edges to the graph.
   g.setEdge("XVIII Corps", "82nd ABN DIV");
@@ -49,13 +68,11 @@ function generateGraph(args: string): Nodes[] | Edges[] | void {
 
   dagre.layout(g);
 
-  const nodes = [] as Nodes[];
+  const nodes = [] as ExportNodes[];
   const edges = [] as Edges[];
 
-  if (args === "nodes") {
-    console.log(g.nodes())
+  if (outputType === "nodes") {
     g.nodes().forEach(function (v: string) {
-
       nodes.push({
         id: v,
         position: { x: g.node(v).x, y: g.node(v).y },
@@ -65,7 +82,7 @@ function generateGraph(args: string): Nodes[] | Edges[] | void {
     return nodes;
   }
 
-  if (args === "edges") {
+  if (outputType === "edges") {
     g.edges().forEach(function (e: EObject) {
       edges.push({
         id: `e${e.v}-${e.w}`,

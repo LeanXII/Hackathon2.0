@@ -1,8 +1,11 @@
 import { ReactFlow, Background, Controls } from "@xyflow/react";
+import {useState} from 'react';
 import { useGraphStore } from "./store/Zustand";
 import "@xyflow/react/dist/style.css";
 import { useShallow } from "zustand/shallow";
 import { GraphState } from "./types/stateTypes";
+import {Menu} from 'lucide-react';
+import ToolMenu from './components/ToolMenu';
 
 const selector = (state: GraphState) => ({
   nodes: state.nodes,
@@ -18,6 +21,8 @@ const selector = (state: GraphState) => ({
 
 const App = () => {
 
+  const [isToolMenu, setIsToolMenu] = useState<boolean>(false);
+
   const { nodes, edges, onNodesChange, onEdgesChange, onConnect, onReconnect, onReconnectEnd, onReconnectStart} =
     useGraphStore(useShallow(selector));
 
@@ -26,6 +31,10 @@ const App = () => {
 
   return (
     <div className="h-screen w-screen">
+        <Menu className = {`z-10 absolute top-1 left-1 cursor-pointer transition-all ${isToolMenu ? "rotate-90 text-white" : "text-black"}`} onClick={() => setIsToolMenu(!isToolMenu)}/>
+          <div className = {`absolute transition-all ${isToolMenu ? "opacity-100 z-2" : "opacity-0"}`}>
+            <ToolMenu />
+          </div>
       <ReactFlow
         nodes={nodes}
         edges={edges}
@@ -35,11 +44,10 @@ const App = () => {
         onReconnect={onReconnect}
         onReconnectStart={onReconnectStart}
         onReconnectEnd={onReconnectEnd}
-
         fitView
       >
         <Background />
-        <Controls />
+        <Controls/>
       </ReactFlow>
     </div>
   );
